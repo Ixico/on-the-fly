@@ -159,7 +159,7 @@ public class LoginView implements ParentAware {
     }
 
     private ImageView logo() {
-        var image = new Image("logo.png");
+        var image = new Image("logo-transparent-resized.png");
         var imageView = new ImageView(image);
         imageView.setPreserveRatio(true);
         imageView.setFitWidth(400);

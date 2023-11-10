@@ -1,5 +1,6 @@
 package pl.com.ixico.passwordmanager.component;
 
+import atlantafx.base.theme.CupertinoDark;
 import atlantafx.base.theme.PrimerDark;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -21,7 +22,7 @@ public class StageInitializer implements ApplicationListener<DesktopApplication.
     public void onApplicationEvent(DesktopApplication.StageReadyEvent event) {
         var stage = event.getStage();
         StageContext.set(stage);
-        Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
+        Application.setUserAgentStylesheet(new CupertinoDark().getUserAgentStylesheet());
         stage.setResizable(false);
         stage.setTitle("On-the-fly");
         stage.setScene(new Scene(loginView.getParent(), 800, 480));

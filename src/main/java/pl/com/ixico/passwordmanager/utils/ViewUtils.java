@@ -17,7 +17,7 @@ import org.kordamp.ikonli.material2.Material2AL;
 public class ViewUtils {
 
     public static ImageView logo() {
-        var image = new Image("logo.png");
+        var image = new Image("logo-transparent-resized.png");
         var imageView = new ImageView(image);
         imageView.setPreserveRatio(true);
         imageView.setFitWidth(400);
@@ -60,8 +60,8 @@ public class ViewUtils {
         return new Separator(Orientation.HORIZONTAL);
     }
 
-    public static Label checksumLabel() {
-        var label = new Label("8d13");
+    public static Label checksumLabel(String text) {
+        var label = new Label(text);
         label.setMinWidth(70);
         label.setAlignment(Pos.CENTER);
         label.getStyleClass().addAll(Styles.TEXT_MUTED, Styles.TEXT_BOLD);
@@ -70,6 +70,7 @@ public class ViewUtils {
 
     public static InputGroup checksumInputGroup(Label checksumLabel, String text) {
         var captionLabel = new Label(text);
+        captionLabel.setMinWidth(250);
         captionLabel.getStyleClass().addAll(Styles.TEXT_CAPTION);
 
         var icon = new FontIcon(Material2AL.INFO);
