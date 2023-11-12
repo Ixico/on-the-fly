@@ -51,7 +51,8 @@ public class ViewUtils {
     }
 
     public static Button button() {
-        var button = new Button("Generate");
+//        var button = new Button("Generate");
+        var button = new Button("Generate", new FontIcon(Material2AL.CONTENT_COPY));
         button.setDefaultButton(true);
         return button;
     }

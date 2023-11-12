@@ -1,7 +1,9 @@
 package pl.com.ixico.passwordmanager.component;
 
 import atlantafx.base.theme.CupertinoDark;
+import atlantafx.base.theme.Dracula;
 import atlantafx.base.theme.PrimerDark;
+import atlantafx.base.theme.PrimerLight;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import lombok.RequiredArgsConstructor;
