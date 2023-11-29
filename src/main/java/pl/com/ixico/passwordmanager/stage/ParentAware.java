@@ -1,4 +1,4 @@
-package pl.com.ixico.passwordmanager.common;
+package pl.com.ixico.passwordmanager.stage;
 
 import javafx.scene.Parent;
 

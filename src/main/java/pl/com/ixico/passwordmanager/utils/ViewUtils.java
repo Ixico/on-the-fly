@@ -2,8 +2,11 @@ package pl.com.ixico.passwordmanager.utils;
 
 import atlantafx.base.layout.InputGroup;
 import atlantafx.base.theme.Styles;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -43,6 +46,11 @@ public class ViewUtils {
         } else {
             textField = new TextField();
             textField.getStyleClass().add(Styles.TEXT_BOLD);
+//            textField.focusedProperty().addListener((observableValue, aBoolean, t1) -> {
+//                System.out.println("debug");
+//
+//                textField.positionCaret(textField.getText().length() - 1);
+//            });
         }
         textField.setPromptText(prompt);
         textField.setAlignment(Pos.CENTER);
@@ -71,7 +79,7 @@ public class ViewUtils {
 
     public static InputGroup checksumInputGroup(Label checksumLabel, String text) {
         var captionLabel = new Label(text);
-        captionLabel.setMinWidth(250);
+        captionLabel.setMinWidth(100);
         captionLabel.getStyleClass().addAll(Styles.TEXT_CAPTION);
 
         var icon = new FontIcon(Material2AL.INFO);
@@ -88,4 +96,17 @@ public class ViewUtils {
         return inputGroup;
     }
 
+
+    public static Tooltip tooltip(String text) {
+        var tooltip = new Tooltip(text);
+        tooltip.setTextAlignment(TextAlignment.CENTER);
+        tooltip.setShowDelay(Duration.ZERO);
+        tooltip.setAnchorLocation(PopupWindow.AnchorLocation.WINDOW_TOP_RIGHT);
+        return tooltip;
+    }
+
+    public static void changeStyle(Node node, String style) {
+        node.getStyleClass().removeAll(Styles.ACCENT, Styles.SUCCESS, Styles.DANGER, Styles.WARNING);
+        node.getStyleClass().add(style);
+    }
 }

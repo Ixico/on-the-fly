@@ -13,7 +13,7 @@ public class LoginService {
 
     public LoginService() {
         this.pbkdf2PasswordEncoder = new Pbkdf2PasswordEncoder("", 0, 1, Pbkdf2PasswordEncoder.SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA256);
-        this.encoder = new Argon2PasswordEncoder(0, 32, 1, 4096, 1);
+        this.encoder = new Argon2PasswordEncoder(0, 32, 1, 200000, 2);
     }
 
     public String calculateHash(String password) {
@@ -21,7 +21,7 @@ public class LoginService {
     }
 
     public String test() {
-        return pbkdf2PasswordEncoder.encode("xd");
+        return Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8().encode("test");
     }
 
 }

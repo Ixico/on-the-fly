@@ -15,6 +15,7 @@ public class ManagerModel {
 
     private final FloatProperty sessionExpirationPart;
 
+    private String passwordChecksum;
 
     public ManagerModel() {
         this.sessionExpiration = new SimpleStringProperty();
@@ -29,4 +30,13 @@ public class ManagerModel {
         this.sessionExpirationPart.set(sessionExpirationPart);
     }
 
+    public void setPasswordChecksum(String passwordChecksum) {
+        this.passwordChecksum = passwordChecksum;
+    }
+
+    public void clear() {
+        sessionExpiration.set("");
+        sessionExpirationPart.set(0f);
+        passwordChecksum = "";
+    }
 }

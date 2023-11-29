@@ -1,0 +1,14 @@
+package pl.com.ixico.passwordmanager.utils;
+
+public class Content {
+
+    public static String help() {
+        return """
+                1. Use silent mode (right top corner) when you are in a public place.
+                2. Provide master password that fulfills defined requirements.
+                3. Remember your checksum and verify it every time you provide master password.
+                4. Enter service name to generate password for authentication process.
+                5. Make sure to refresh your session if you are still using the app (you will be logged out since it expires).
+                """;
+    }
+}

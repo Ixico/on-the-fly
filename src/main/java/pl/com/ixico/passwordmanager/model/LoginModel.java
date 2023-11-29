@@ -5,6 +5,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import lombok.Getter;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Component;
 
 @Getter
@@ -48,6 +49,14 @@ public class LoginModel {
 
     public void setNotCompromisedRequirementFulfilled(boolean fulfilled) {
         notCompromisedRequirementFulfilled.set(fulfilled);
+    }
+
+    public void clear() {
+        passwordHashFragment.set("");
+        lengthRequirementFulfilled.set(false);
+        caseRequirementFulfilled.set(false);
+        complexityRequirementFulfilled.set(false);
+        notCompromisedRequirementFulfilled.set(false);
     }
 
 }

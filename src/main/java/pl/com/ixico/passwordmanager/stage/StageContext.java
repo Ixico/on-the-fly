@@ -1,7 +1,6 @@
-package pl.com.ixico.passwordmanager.context;
+package pl.com.ixico.passwordmanager.stage;
 
 import javafx.stage.Stage;
-import pl.com.ixico.passwordmanager.common.ParentAware;
 
 public class StageContext {
 

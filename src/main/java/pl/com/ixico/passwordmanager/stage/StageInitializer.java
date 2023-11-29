@@ -1,16 +1,13 @@
-package pl.com.ixico.passwordmanager.component;
+package pl.com.ixico.passwordmanager.stage;
 
 import atlantafx.base.theme.CupertinoDark;
-import atlantafx.base.theme.Dracula;
-import atlantafx.base.theme.PrimerDark;
-import atlantafx.base.theme.PrimerLight;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 import pl.com.ixico.passwordmanager.DesktopApplication;
-import pl.com.ixico.passwordmanager.context.StageContext;
+import pl.com.ixico.passwordmanager.stage.StageContext;
 import pl.com.ixico.passwordmanager.view.LoginView;
 
 @Component
@@ -27,7 +24,7 @@ public class StageInitializer implements ApplicationListener<DesktopApplication.
         Application.setUserAgentStylesheet(new CupertinoDark().getUserAgentStylesheet());
         stage.setResizable(false);
         stage.setTitle("On-the-fly");
-        stage.setScene(new Scene(loginView.getParent(), 800, 480));
+        stage.setScene(new Scene(loginView.getParent(), 800, 540));
         stage.show();
     }
 }
