@@ -3,24 +3,23 @@ package pl.com.ixico.passwordmanager.view;
 import atlantafx.base.theme.Styles;
 import jakarta.annotation.PostConstruct;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.layout.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.kordamp.ikonli.boxicons.BoxiconsSolid;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeBrands;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2AL;
 import org.kordamp.ikonli.material2.Material2MZ;
 import org.springframework.stereotype.Component;
-import pl.com.ixico.passwordmanager.stage.ParentAware;
 import pl.com.ixico.passwordmanager.controller.ManagerController;
 import pl.com.ixico.passwordmanager.model.ManagerModel;
+import pl.com.ixico.passwordmanager.stage.ParentAware;
+import pl.com.ixico.passwordmanager.utils.Content;
 import pl.com.ixico.passwordmanager.utils.ViewUtils;
 
 import java.util.List;
@@ -50,6 +49,10 @@ public class ManagerView implements ParentAware {
 
     private Button logoutButton;
 
+    private ToggleButton silentModeButton;
+
+    private Button helpButton;
+
 
     @PostConstruct
     public void init() {
@@ -61,29 +64,40 @@ public class ManagerView implements ParentAware {
         this.generateButton = ViewUtils.button();
         this.refreshButton = refreshButton();
         this.logoutButton = logoutButton();
+        this.silentModeButton = silentMode();
+        this.helpButton = helpButton();
         initializeView();
 
     }
 
-    public void update() {
-        checksumLabel.setText(model.getPasswordChecksum());
+    public void update(boolean silentMode) {
+        silentModeButton.setSelected(!silentMode);
+        silentModeButton.fire();
     }
 
     private void initializeView() {
         customizeRoot();
         parent.getChildren().addAll(
-                ViewUtils.logo(),
+                menuWithLogo(silentModeButton, helpButton),
                 ViewUtils.caption("Enter application name:"),
-                icons(),
+//                icons(),
                 ViewUtils.textFieldInput(domainField, generateButton),
                 ViewUtils.separator(),
-                ViewUtils.caption("Session expiration:"),
+
 //                ViewUtils.checksumInputGroup(sessionExpirationLabel, "Session expiration"),
-                sessionWithRefresh(new StackPane(sessionExpirationBar, sessionExpirationLabel), refreshButton),
-                new HBox(ViewUtils.checksumInputGroup(checksumLabel, "Checksum"), logoutButton) {{
-                    setSpacing(20);
-                    setAlignment(Pos.CENTER);
-                }}
+
+                ViewUtils.centeringHbox(
+                        ViewUtils.centeringVbox(
+                                ViewUtils.caption("Session expiration:"),
+                                new StackPane(sessionExpirationBar, sessionExpirationLabel),
+                                refreshButton
+                        ),
+                        new Separator(Orientation.VERTICAL),
+                        ViewUtils.centeringVbox(ViewUtils.caption("Session details:"),
+                                ViewUtils.checksumInputGroup(checksumLabel, "Checksum"),
+                                logoutButton
+                        )
+                )
         );
         observeSessionExpiration();
         observeSessionExpirationPart();
@@ -91,6 +105,59 @@ public class ManagerView implements ParentAware {
         listenDomainField();
         listenRefreshButton();
         listenLogoutButton();
+        registerShortcuts();
+        listenSilentModeButton();
+        listenHelpButton();
+    }
+
+    private void listenSilentModeButton() {
+        silentModeButton.setOnAction(e -> {
+            if (isSilentMode()) {
+                checksumLabel.setText("****");
+            } else {
+                checksumLabel.setText(model.getPasswordChecksum());
+            }
+        });
+    }
+
+    private void listenHelpButton() {
+        helpButton.setOnAction(e -> {
+            var alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Help");
+            alert.setHeaderText("How to use On-the-fly?");
+            alert.setContentText(Content.help());
+            alert.initOwner(parent.getScene().getWindow());
+            alert.show();
+        });
+    }
+
+
+    private BorderPane menuWithLogo(ToggleButton silentMode, Button help) {
+        var hbox = new HBox(silentMode, help);
+        hbox.setSpacing(20);
+        var borderPane = new BorderPane();
+        var region = new Region();
+        region.prefWidthProperty().bind(hbox.widthProperty());
+        borderPane.leftProperty().set(region);
+        borderPane.centerProperty().set(ViewUtils.logo());
+        borderPane.rightProperty().set(hbox);
+        return borderPane;
+    }
+
+    private ToggleButton silentMode() {
+        var toggleButton = new ToggleButton(null, new FontIcon(BoxiconsSolid.HIDE));
+        toggleButton.setFocusTraversable(false);
+        toggleButton.getStyleClass().addAll(Styles.BUTTON_ICON);
+        toggleButton.setTooltip(ViewUtils.tooltip("Silent mode\nCTRL+S"));
+        return toggleButton;
+    }
+
+    private Button helpButton() {
+        var button = new Button(null, new FontIcon(Material2AL.HELP));
+        button.setFocusTraversable(false);
+        button.getStyleClass().addAll(Styles.BUTTON_ICON);
+        button.setTooltip(ViewUtils.tooltip("Help"));
+        return button;
     }
 
     private void observeSessionExpiration() {
@@ -115,6 +182,7 @@ public class ManagerView implements ParentAware {
         generateButton.setOnAction(e -> {
             generateButton.getStyleClass().addAll(Styles.SUCCESS);
             generateButton.setText("Copied");
+            controller.onGeneratePressed(domainField.getText());
         });
     }
 
@@ -133,7 +201,24 @@ public class ManagerView implements ParentAware {
     private void listenRefreshButton() {
         refreshButton.setOnAction(e -> {
             controller.onRefreshButtonPressed();
-            sessionExpirationBar.getStyleClass().addAll(Styles.SUCCESS);
+//            var message = new Message("Success", "Session successfully refreshed",
+//                    new FontIcon(Material2OutlinedAL.CHECK_CIRCLE_OUTLINE));
+//            message.getStyleClass().add(Styles.SUCCESS);
+//            message.setVisible(true);
+        });
+    }
+
+    private void registerShortcuts() {
+        parent.setOnKeyPressed(key -> {
+            if (key.getCode() == KeyCode.S && key.isControlDown()) {
+                silentModeButton.fire();
+            }
+            if (key.getCode() == KeyCode.L && key.isControlDown()) {
+                logoutButton.fire();
+            }
+            if (key.getCode() == KeyCode.R && key.isControlDown()) {
+                refreshButton.fire();
+            }
         });
     }
 
@@ -152,7 +237,7 @@ public class ManagerView implements ParentAware {
     }
 
     private Button refreshButton() {
-        var button = new Button(null, new FontIcon(Material2MZ.REFRESH));
+        var button = new Button("Refresh", new FontIcon(Material2MZ.REFRESH));
         button.setDefaultButton(false);
         return button;
     }
@@ -190,5 +275,9 @@ public class ManagerView implements ParentAware {
         icons.forEach(button -> button.getStyleClass().addAll(Styles.BUTTON_ICON, Styles.FLAT, Styles.LARGE));
         hbox.getChildren().addAll(icons);
         return hbox;
+    }
+
+    public boolean isSilentMode() {
+        return silentModeButton.isSelected();
     }
 }

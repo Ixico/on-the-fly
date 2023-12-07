@@ -5,7 +5,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import lombok.Getter;
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Component;
 
 @Getter
@@ -20,7 +19,7 @@ public class LoginModel {
 
     private final BooleanProperty complexityRequirementFulfilled;
 
-    private final BooleanProperty notCompromisedRequirementFulfilled;
+    private final BooleanProperty noTrivialSequencesRequirementFulfilled;
 
 
     public LoginModel() {
@@ -28,7 +27,7 @@ public class LoginModel {
         this.lengthRequirementFulfilled = new SimpleBooleanProperty(false);
         this.caseRequirementFulfilled = new SimpleBooleanProperty(false);
         this.complexityRequirementFulfilled = new SimpleBooleanProperty(false);
-        this.notCompromisedRequirementFulfilled = new SimpleBooleanProperty(false);
+        this.noTrivialSequencesRequirementFulfilled = new SimpleBooleanProperty(false);
     }
 
     public void setPasswordHashFragment(String value) {
@@ -47,16 +46,17 @@ public class LoginModel {
         complexityRequirementFulfilled.set(fulfilled);
     }
 
-    public void setNotCompromisedRequirementFulfilled(boolean fulfilled) {
-        notCompromisedRequirementFulfilled.set(fulfilled);
+    public void setNoTrivialSequencesRequirementFulfilled(boolean fulfilled) {
+        noTrivialSequencesRequirementFulfilled.set(fulfilled);
     }
+
 
     public void clear() {
         passwordHashFragment.set("");
         lengthRequirementFulfilled.set(false);
         caseRequirementFulfilled.set(false);
         complexityRequirementFulfilled.set(false);
-        notCompromisedRequirementFulfilled.set(false);
+        noTrivialSequencesRequirementFulfilled.set(false);
     }
 
 }

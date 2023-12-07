@@ -1,11 +1,14 @@
 package pl.com.ixico.passwordmanager.controller;
 
 import javafx.animation.AnimationTimer;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Controller;
 import pl.com.ixico.passwordmanager.model.ManagerModel;
+import pl.com.ixico.passwordmanager.service.PasswordService;
 import pl.com.ixico.passwordmanager.stage.StageManager;
 
 import java.time.Instant;
@@ -18,6 +21,8 @@ public class ManagerController {
 
 
     private final ApplicationEventPublisher applicationEventPublisher;
+
+    private final PasswordService passwordService;
 
     private AnimationTimer sessionTimer;
 
@@ -53,5 +58,11 @@ public class ManagerController {
     public void onLogoutButtonPressed() {
         sessionTimer.stop();
         applicationEventPublisher.publishEvent(StageManager.DisplayLoginViewEvent.instance());
+    }
+
+    public void onGeneratePressed(String domain) {
+        var content = new ClipboardContent();
+        content.putString(passwordService.calculatePassword(managerModel.getMasterKey(), domain));
+        Clipboard.getSystemClipboard().setContent(content);
     }
 }

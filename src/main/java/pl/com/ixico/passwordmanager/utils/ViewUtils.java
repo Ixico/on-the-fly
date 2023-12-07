@@ -2,14 +2,15 @@ package pl.com.ixico.passwordmanager.utils;
 
 import atlantafx.base.layout.InputGroup;
 import atlantafx.base.theme.Styles;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.PopupWindow;
@@ -18,6 +19,23 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2AL;
 
 public class ViewUtils {
+
+    public static HBox centeringHbox(Node... children) {
+        var hbox = new HBox();
+        hbox.setAlignment(Pos.CENTER);
+        hbox.getChildren().addAll(children);
+        hbox.setSpacing(50);
+        return hbox;
+    }
+
+    public static VBox centeringVbox(Node... children) {
+        var vbox = new VBox();
+        vbox.setAlignment(Pos.TOP_CENTER);
+        vbox.getChildren().addAll(children);
+        vbox.setPadding(new Insets(20, 0, 0, 0));
+        vbox.setSpacing(20);
+        return vbox;
+    }
 
     public static ImageView logo() {
         var image = new Image("logo-transparent-resized.png");

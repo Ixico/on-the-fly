@@ -4,6 +4,7 @@ import atlantafx.base.layout.InputGroup;
 import atlantafx.base.theme.Styles;
 import atlantafx.base.util.Animations;
 import jakarta.annotation.PostConstruct;
+import javafx.animation.Animation;
 import javafx.beans.property.BooleanProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -23,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import org.kordamp.ikonli.boxicons.BoxiconsSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2AL;
+import org.kordamp.ikonli.material2.Material2MZ;
 import org.kordamp.ikonli.material2.Material2RoundAL;
 import org.springframework.stereotype.Component;
 import pl.com.ixico.passwordmanager.stage.ParentAware;
@@ -56,7 +58,7 @@ public class LoginView implements ParentAware {
 
     private Label complexityRequiremenetLabel;
 
-    private Label notCompromisedRequirementLabel;
+    private Label noTrivialSequencesRequirementLabel;
 
     private FontIcon lengthRequirementIcon;
 
@@ -64,7 +66,7 @@ public class LoginView implements ParentAware {
 
     private FontIcon complexityRequirementIcon;
 
-    private FontIcon notCompromisedRequirementIcon;
+    private FontIcon noTrivialSequencesRequirementIcon;
 
     private ToggleButton silentModeButton;
 
@@ -72,27 +74,35 @@ public class LoginView implements ParentAware {
 
     private Map<FontIcon, BooleanProperty> requirements;
 
+    private Alert alert;
+
+    private Animation generatingAnimation;
+
+    private Button cancelButton;
+
+
     @PostConstruct
     public void init() {
         this.parent = new VBox();
         this.passwordField = passwordField();
         this.passwordButton = passwordButton();
         this.checksumLabel = checksumLabel();
-        this.lengthRequirementLabel = requirementLabel("Minimum 12 characters");
+        this.lengthRequirementLabel = requirementLabel("Minimum 16 characters");
         this.caseRequirementLabel = requirementLabel("Uppercase and lowercase letters");
         this.complexityRequiremenetLabel = requirementLabel("Numbers and symbols");
-        this.notCompromisedRequirementLabel = requirementLabel("Password not compromised");
+        this.noTrivialSequencesRequirementLabel = requirementLabel("No trivial sequences");
+        this.noTrivialSequencesRequirementLabel.setTooltip(ViewUtils.tooltip(Content.noTrivialSequencesTooltip()));
         this.lengthRequirementIcon = requirementIcon();
         this.caseRequirementIcon = requirementIcon();
         this.complexityRequirementIcon = requirementIcon();
-        this.notCompromisedRequirementIcon = requirementIcon();
+        this.noTrivialSequencesRequirementIcon = requirementIcon();
         this.silentModeButton = silentMode();
         this.helpButton = helpButton();
         requirements = Map.of(
                 lengthRequirementIcon, model.getLengthRequirementFulfilled(),
                 caseRequirementIcon, model.getCaseRequirementFulfilled(),
                 complexityRequirementIcon, model.getComplexityRequirementFulfilled(),
-                notCompromisedRequirementIcon, model.getNotCompromisedRequirementFulfilled()
+                noTrivialSequencesRequirementIcon, model.getNoTrivialSequencesRequirementFulfilled()
         );
         initializeView();
     }
@@ -117,6 +127,7 @@ public class LoginView implements ParentAware {
         registerSilentModeShortcut();
     }
 
+
     private void registerSilentModeShortcut() {
         parent.setOnKeyPressed(key -> {
             if (key.getCode() == KeyCode.S && key.isControlDown()) {
@@ -131,7 +142,9 @@ public class LoginView implements ParentAware {
         parent.setPadding(new Insets(20));
     }
 
-    public void update() {
+    public void update(boolean silentMode) {
+        silentModeButton.setSelected(!silentMode);
+        silentModeButton.fire();
         passwordField.setText("");
         checksumLabel.setText("");
     }
@@ -180,11 +193,37 @@ public class LoginView implements ParentAware {
             if (!model.getComplexityRequirementFulfilled().get()) {
                 flash(complexityRequiremenetLabel);
             }
-            if (!model.getNotCompromisedRequirementFulfilled().get()) {
-                flash(notCompromisedRequirementLabel);
+            if (!model.getNoTrivialSequencesRequirementFulfilled().get()) {
+                flash(noTrivialSequencesRequirementLabel);
             }
-            controller.onPasswordSubmitted(passwordField.getText());
+            if (controller.areRequirementsFulfilled()) {
+                showGeneratingMasterKeyAlert();
+                controller.onPasswordSubmitted(passwordField.getText());
+
+            }
         });
+    }
+
+    private void showGeneratingMasterKeyAlert() {
+        var icon = new FontIcon(Material2MZ.REFRESH);
+        alert = new Alert(Alert.AlertType.INFORMATION);
+        cancelButton = (Button) ((ButtonBar) alert.getDialogPane().getChildren().get(2)).getButtons().get(0);
+        cancelButton.setText("Cancel");
+        cancelButton.setOnAction(e -> {
+            controller.onCancelButtonPressed();
+        });
+        alert.setHeaderText(null);
+        alert.setContentText("Generating master key... It may take a while.");
+        alert.setGraphic(icon);
+        generatingAnimation = Animations.rotateIn(icon, Duration.seconds(2));
+        generatingAnimation.setCycleCount(100);
+        generatingAnimation.playFromStart();
+        alert.show();
+    }
+
+    public void closeGeneratingMasterKeyAlert() {
+        generatingAnimation.stop();
+        alert.close();
     }
 
     private void flash(Node node) {
@@ -266,7 +305,7 @@ public class LoginView implements ParentAware {
 
         var icon = new FontIcon(Material2AL.INFO);
 
-        var tooltip = new Tooltip("Validate your password produces\ncorrect checksum");
+        var tooltip = new Tooltip("Remember and validate\nthe checksum everytime.\n(see help for more)");
 
         tooltip.setTextAlignment(TextAlignment.CENTER);
         tooltip.setShowDelay(Duration.ZERO);
@@ -292,7 +331,7 @@ public class LoginView implements ParentAware {
         var rightVbox = new VBox();
         rightVbox.getChildren().addAll(
                 requirement(caseRequirementLabel, caseRequirementIcon),
-                requirement(notCompromisedRequirementLabel, notCompromisedRequirementIcon)
+                requirement(noTrivialSequencesRequirementLabel, noTrivialSequencesRequirementIcon)
         );
         leftVbox.setSpacing(20);
         rightVbox.setSpacing(20);
@@ -350,7 +389,7 @@ public class LoginView implements ParentAware {
         return borderPane;
     }
 
-    private boolean isSilentMode() {
+    public boolean isSilentMode() {
         return silentModeButton.isSelected();
     }
 }

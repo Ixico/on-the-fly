@@ -6,7 +6,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import pl.com.ixico.passwordmanager.model.LoginModel;
 import pl.com.ixico.passwordmanager.service.LoginService;
-import pl.com.ixico.passwordmanager.stage.StageManager;
+import pl.com.ixico.passwordmanager.service.PasswordService;
+import pl.com.ixico.passwordmanager.service.PasswordValidationService;
 import pl.com.ixico.passwordmanager.view.ManagerView;
 
 import java.util.stream.Stream;
@@ -23,34 +24,44 @@ public class LoginController {
 
     private final ApplicationEventPublisher applicationEventPublisher;
 
+    private final PasswordService passwordService;
+
+    private final PasswordValidationService passwordValidationService;
+
+    private Thread calculatingThread;
+
 
     public void onPasswordChanged(String password) {
-        loginModel.setPasswordHashFragment(calculateChecksum(password));
-
-        loginModel.setCaseRequirementFulfilled(!password.toLowerCase().equals(password));
-        loginModel.setComplexityRequirementFulfilled(!StringUtils.isAlphanumeric(password));
-        loginModel.setLengthRequirementFulfilled(password.length() >= 12);
-        loginModel.setNotCompromisedRequirementFulfilled(true);
-    }
-
-    public void onPasswordSubmitted(String password) {
-        var requirementsFulfilled = Stream.of(
-                loginModel.getCaseRequirementFulfilled().get(),
-                loginModel.getComplexityRequirementFulfilled().get(),
-                loginModel.getLengthRequirementFulfilled().get(),
-                loginModel.getNotCompromisedRequirementFulfilled().get()
-        ).allMatch(requirement -> requirement);
-        if (requirementsFulfilled) {
-            applicationEventPublisher.publishEvent(
-                    StageManager.DisplayManagerViewEvent.builder()
-                            .masterKey(password)// TODO set MasterKey
-                            .passwordChecksum(calculateChecksum(password))
-                            .build()
-            );
+        loginModel.setCaseRequirementFulfilled(passwordValidationService.caseRequirementFulfilled(password));
+        loginModel.setComplexityRequirementFulfilled(passwordValidationService.complexityRequirementFulfilled(password));
+        loginModel.setLengthRequirementFulfilled(passwordValidationService.lengthRequirementFulfilled(password));
+        loginModel.setNoTrivialSequencesRequirementFulfilled(passwordValidationService.noTrivialSequencesRequirementFulfilled(password));
+        if (areRequirementsFulfilled()) {
+            loginModel.setPasswordHashFragment(passwordService.calculateChecksum(password));
+        } else {
+            loginModel.setPasswordHashFragment("");
         }
     }
 
+    public boolean areRequirementsFulfilled() {
+        return Stream.of(
+                loginModel.getCaseRequirementFulfilled().get(),
+                loginModel.getComplexityRequirementFulfilled().get(),
+                loginModel.getLengthRequirementFulfilled().get(),
+                loginModel.getNoTrivialSequencesRequirementFulfilled().get()
+        ).allMatch(requirement -> requirement);
+    }
+
+    public void onPasswordSubmitted(String password) {
+        calculatingThread = new Thread(passwordService.hashMasterPassword(password));
+        calculatingThread.start();
+    }
+
     private String calculateChecksum(String password) {
-        return loginService.calculateHash(password).substring(70);
+        return passwordService.calculateChecksum(password);
+    }
+
+    public void onCancelButtonPressed() {
+        calculatingThread.interrupt();
     }
 }

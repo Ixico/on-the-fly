@@ -27,7 +27,7 @@ public class StageManager {
     @EventListener
     public void onApplicationEvent(DisplayLoginViewEvent ignore) {
 
-        loginView.update();
+        loginView.update(managerView.isSilentMode());
         managerModel.clear();
         StageContext.changeView(loginView);
     }
@@ -35,9 +35,11 @@ public class StageManager {
     @EventListener
     public void onApplicationEvent(DisplayManagerViewEvent event) {
         managerModel.setPasswordChecksum(event.getPasswordChecksum());
+        managerModel.setMasterKey(event.getMasterKey());
         managerController.initClock();
+        loginView.closeGeneratingMasterKeyAlert();
 
-        managerView.update();
+        managerView.update(loginView.isSilentMode());
         loginModel.clear();
         StageContext.changeView(managerView);
     }
