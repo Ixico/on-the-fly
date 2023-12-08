@@ -1,6 +1,5 @@
 package pl.com.ixico.passwordmanager.view;
 
-import atlantafx.base.controls.Message;
 import atlantafx.base.theme.Styles;
 import atlantafx.base.util.Animations;
 import jakarta.annotation.PostConstruct;
@@ -14,19 +13,15 @@ import javafx.util.Duration;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.kordamp.ikonli.boxicons.BoxiconsSolid;
-import org.kordamp.ikonli.fontawesome5.FontAwesomeBrands;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2AL;
 import org.kordamp.ikonli.material2.Material2MZ;
-import org.kordamp.ikonli.material2.Material2OutlinedAL;
 import org.springframework.stereotype.Component;
 import pl.com.ixico.passwordmanager.controller.ManagerController;
 import pl.com.ixico.passwordmanager.model.ManagerModel;
 import pl.com.ixico.passwordmanager.stage.ParentAware;
 import pl.com.ixico.passwordmanager.utils.Content;
 import pl.com.ixico.passwordmanager.utils.ViewUtils;
-
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -165,15 +160,13 @@ public class ManagerView implements ParentAware {
     }
 
     private void observeSessionExpiration() {
-        model.getSessionExpiration().addListener((observableValue, oldValue, newValue) -> {
-            sessionExpirationLabel.setText(newValue);
-        });
+        model.getSessionExpiration().addListener((observableValue, oldValue, newValue) ->
+                sessionExpirationLabel.setText(newValue));
     }
 
     private void observeSessionExpirationPart() {
-        model.getSessionExpirationPart().addListener((observableValue, oldValue, newValue) -> {
-            sessionExpirationBar.setProgress(newValue.doubleValue());
-        });
+        model.getSessionExpirationPart().addListener((observableValue, oldValue, newValue) ->
+                sessionExpirationBar.setProgress(newValue.doubleValue()));
     }
 
     private void customizeRoot() {
@@ -228,7 +221,7 @@ public class ManagerView implements ParentAware {
             var alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Logout");
             alert.setHeaderText(null);
-            alert.setContentText("Are you sure you want to log out?");;
+            alert.setContentText("Are you sure you want to log out?");
             alert.initOwner(parent.getScene().getWindow());
             alert.showAndWait().filter(buttonType -> buttonType == ButtonType.OK)
                     .ifPresent(buttonType -> controller.onLogoutButtonPressed());
@@ -253,35 +246,6 @@ public class ManagerView implements ParentAware {
         var button = new Button("Logout", new FontIcon(Material2AL.LOG_OUT));
         button.setDefaultButton(false);
         return button;
-    }
-
-    private HBox sessionWithRefresh(StackPane progressBar, Button button) {
-        var hbox = new HBox();
-        hbox.setAlignment(Pos.CENTER);
-        hbox.setSpacing(10);
-        hbox.getChildren().addAll(progressBar, button);
-        return hbox;
-    }
-
-    private HBox icons() {
-        var hbox = new HBox();
-        hbox.setSpacing(20);
-        hbox.setAlignment(Pos.CENTER);
-        hbox.setMinHeight(50);
-        hbox.getStyleClass().addAll(Styles.TITLE_1);
-        parent.getStylesheets().add(getClass().getClassLoader().getResource("style.css").toExternalForm());
-
-        var icons = List.of(
-                new FontIcon(FontAwesomeBrands.FACEBOOK),
-                new FontIcon(FontAwesomeBrands.GOOGLE),
-                new FontIcon(FontAwesomeBrands.LINKEDIN),
-                new FontIcon(FontAwesomeBrands.YOUTUBE),
-                new FontIcon(FontAwesomeBrands.GITHUB)
-        ).stream().map(icon -> new Button(null, icon)).toList();
-//        icons.forEach(icon -> icon.getStyleClass().addAll("resized"));
-        icons.forEach(button -> button.getStyleClass().addAll(Styles.BUTTON_ICON, Styles.FLAT, Styles.LARGE));
-        hbox.getChildren().addAll(icons);
-        return hbox;
     }
 
     public boolean isSilentMode() {

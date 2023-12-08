@@ -1,11 +1,9 @@
 package pl.com.ixico.passwordmanager.model;
 
-import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.FloatProperty;
 import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleStringProperty;
 import lombok.Getter;
-import lombok.Setter;
 import org.springframework.stereotype.Component;
 
 

@@ -11,6 +11,3 @@ public class PasswordManagerApplication {
     }
 
 }
-// TODO are you sure you want to log out
-// maybe some notifications when session refreshed
-// and password generated for service

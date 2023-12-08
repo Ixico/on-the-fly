@@ -68,11 +68,6 @@ public class ViewUtils {
                 }
             };
             textField.getStyleClass().add(Styles.TEXT_BOLD);
-//            textField.focusedProperty().addListener((observableValue, aBoolean, t1) -> {
-//                System.out.println("debug");
-//
-//                textField.positionCaret(textField.getText().length() - 1);
-//            });
         }
         textField.setPromptText(prompt);
         textField.setAlignment(Pos.CENTER);

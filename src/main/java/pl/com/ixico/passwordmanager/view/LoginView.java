@@ -14,7 +14,10 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.PopupWindow;
@@ -27,9 +30,9 @@ import org.kordamp.ikonli.material2.Material2AL;
 import org.kordamp.ikonli.material2.Material2MZ;
 import org.kordamp.ikonli.material2.Material2RoundAL;
 import org.springframework.stereotype.Component;
-import pl.com.ixico.passwordmanager.stage.ParentAware;
 import pl.com.ixico.passwordmanager.controller.LoginController;
 import pl.com.ixico.passwordmanager.model.LoginModel;
+import pl.com.ixico.passwordmanager.stage.ParentAware;
 import pl.com.ixico.passwordmanager.utils.Content;
 import pl.com.ixico.passwordmanager.utils.ViewUtils;
 
@@ -77,8 +80,6 @@ public class LoginView implements ParentAware {
     private Alert alert;
 
     private Animation generatingAnimation;
-
-    private Button cancelButton;
 
 
     @PostConstruct
@@ -208,11 +209,6 @@ public class LoginView implements ParentAware {
         alert = new Alert(Alert.AlertType.INFORMATION);
         alert.getButtonTypes().remove(ButtonType.OK);
         alert.getButtonTypes().add(ButtonType.CANCEL);
-//        cancelButton = (Button) ((ButtonBar) alert.getDialogPane().getChildren().get(2)).getButtons().get(0);
-//        cancelButton.setText("Cancel");
-//        cancelButton.setOnAction(e -> {
-//            controller.onCancelButtonPressed();
-//        });
         alert.setHeaderText(null);
         alert.setContentText("Generating master key... It may take a while.");
         alert.setGraphic(icon);

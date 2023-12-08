@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 import pl.com.ixico.passwordmanager.DesktopApplication;
-import pl.com.ixico.passwordmanager.stage.StageContext;
 import pl.com.ixico.passwordmanager.view.LoginView;
 
 @Component
