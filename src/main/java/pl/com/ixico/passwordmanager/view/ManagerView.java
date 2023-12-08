@@ -1,6 +1,8 @@
 package pl.com.ixico.passwordmanager.view;
 
+import atlantafx.base.controls.Message;
 import atlantafx.base.theme.Styles;
+import atlantafx.base.util.Animations;
 import jakarta.annotation.PostConstruct;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -8,6 +10,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
+import javafx.util.Duration;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.kordamp.ikonli.boxicons.BoxiconsSolid;
@@ -15,6 +18,7 @@ import org.kordamp.ikonli.fontawesome5.FontAwesomeBrands;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2AL;
 import org.kordamp.ikonli.material2.Material2MZ;
+import org.kordamp.ikonli.material2.Material2OutlinedAL;
 import org.springframework.stereotype.Component;
 import pl.com.ixico.passwordmanager.controller.ManagerController;
 import pl.com.ixico.passwordmanager.model.ManagerModel;
@@ -201,10 +205,7 @@ public class ManagerView implements ParentAware {
     private void listenRefreshButton() {
         refreshButton.setOnAction(e -> {
             controller.onRefreshButtonPressed();
-//            var message = new Message("Success", "Session successfully refreshed",
-//                    new FontIcon(Material2OutlinedAL.CHECK_CIRCLE_OUTLINE));
-//            message.getStyleClass().add(Styles.SUCCESS);
-//            message.setVisible(true);
+            Animations.fadeIn(sessionExpirationBar, Duration.seconds(2)).playFromStart();
         });
     }
 
@@ -224,7 +225,13 @@ public class ManagerView implements ParentAware {
 
     private void listenLogoutButton() {
         logoutButton.setOnAction(e -> {
-            controller.onLogoutButtonPressed();
+            var alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Logout");
+            alert.setHeaderText(null);
+            alert.setContentText("Are you sure you want to log out?");;
+            alert.initOwner(parent.getScene().getWindow());
+            alert.showAndWait().filter(buttonType -> buttonType == ButtonType.OK)
+                    .ifPresent(buttonType -> controller.onLogoutButtonPressed());
         });
     }
 

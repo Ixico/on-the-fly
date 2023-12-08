@@ -62,7 +62,11 @@ public class ViewUtils {
         if (password) {
             textField = new PasswordField();
         } else {
-            textField = new TextField();
+            textField = new TextField() {
+                @Override public void replaceText(int start, int end, String text) {
+                    super.replaceText(start, end, text.toUpperCase());
+                }
+            };
             textField.getStyleClass().add(Styles.TEXT_BOLD);
 //            textField.focusedProperty().addListener((observableValue, aBoolean, t1) -> {
 //                System.out.println("debug");

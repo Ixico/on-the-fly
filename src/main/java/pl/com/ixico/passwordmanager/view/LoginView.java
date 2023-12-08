@@ -197,9 +197,8 @@ public class LoginView implements ParentAware {
                 flash(noTrivialSequencesRequirementLabel);
             }
             if (controller.areRequirementsFulfilled()) {
-                showGeneratingMasterKeyAlert();
                 controller.onPasswordSubmitted(passwordField.getText());
-
+                showGeneratingMasterKeyAlert();
             }
         });
     }
@@ -207,18 +206,21 @@ public class LoginView implements ParentAware {
     private void showGeneratingMasterKeyAlert() {
         var icon = new FontIcon(Material2MZ.REFRESH);
         alert = new Alert(Alert.AlertType.INFORMATION);
-        cancelButton = (Button) ((ButtonBar) alert.getDialogPane().getChildren().get(2)).getButtons().get(0);
-        cancelButton.setText("Cancel");
-        cancelButton.setOnAction(e -> {
-            controller.onCancelButtonPressed();
-        });
+        alert.getButtonTypes().remove(ButtonType.OK);
+        alert.getButtonTypes().add(ButtonType.CANCEL);
+//        cancelButton = (Button) ((ButtonBar) alert.getDialogPane().getChildren().get(2)).getButtons().get(0);
+//        cancelButton.setText("Cancel");
+//        cancelButton.setOnAction(e -> {
+//            controller.onCancelButtonPressed();
+//        });
         alert.setHeaderText(null);
         alert.setContentText("Generating master key... It may take a while.");
         alert.setGraphic(icon);
         generatingAnimation = Animations.rotateIn(icon, Duration.seconds(2));
         generatingAnimation.setCycleCount(100);
         generatingAnimation.playFromStart();
-        alert.show();
+        alert.showAndWait().filter(buttonType -> buttonType == ButtonType.CANCEL)
+                .ifPresent(buttonType -> controller.onCancelButtonPressed());
     }
 
     public void closeGeneratingMasterKeyAlert() {

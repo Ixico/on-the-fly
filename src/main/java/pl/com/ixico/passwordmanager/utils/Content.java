@@ -10,7 +10,7 @@ public class Content {
                 3. Remember your checksum and verify it every time you provide master password to make sure it is correct.
                 
                 STEP 2
-                4. Enter service name to generate password for authentication process (case sensitive).
+                4. Enter service name to generate password for authentication process.
                 5. Make sure to refresh your session if you are still using the app (you will be logged out since it expires).
                 """;
     }
