@@ -6,33 +6,21 @@ import atlantafx.base.util.Animations;
 import jakarta.annotation.PostConstruct;
 import javafx.animation.Animation;
 import javafx.beans.property.BooleanProperty;
-import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
-import javafx.stage.PopupWindow;
 import javafx.util.Duration;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.kordamp.ikonli.boxicons.BoxiconsSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
-import org.kordamp.ikonli.material2.Material2AL;
 import org.kordamp.ikonli.material2.Material2MZ;
 import org.kordamp.ikonli.material2.Material2RoundAL;
 import org.springframework.stereotype.Component;
 import pl.com.ixico.passwordmanager.controller.LoginController;
 import pl.com.ixico.passwordmanager.model.LoginModel;
-import pl.com.ixico.passwordmanager.stage.ParentAware;
 import pl.com.ixico.passwordmanager.utils.Content;
 import pl.com.ixico.passwordmanager.utils.ViewUtils;
 
@@ -40,42 +28,36 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-public class LoginView implements ParentAware {
+public class LoginView extends BaseView {
 
     private final LoginController controller;
 
     private final LoginModel model;
 
-    @Getter
-    private VBox parent;
 
-    private PasswordField passwordField;
+    private final PasswordField passwordField = passwordField();
 
-    private Button passwordButton;
+    private final Button passwordButton = passwordButton();
 
-    private Label checksumLabel;
 
-    private Label lengthRequirementLabel;
+    private final Label lengthRequirementLabel = requirementLabel("Minimum 16 characters");
 
-    private Label caseRequirementLabel;
+    private final Label caseRequirementLabel = requirementLabel("Uppercase and lowercase letters");
 
-    private Label complexityRequiremenetLabel;
+    private final Label complexityRequiremenetLabel = requirementLabel("Numbers and symbols");
 
-    private Label noTrivialSequencesRequirementLabel;
+    private final Label noTrivialSequencesRequirementLabel = requirementLabel("No trivial sequences");
 
-    private FontIcon lengthRequirementIcon;
+    private final FontIcon lengthRequirementIcon = requirementIcon();
 
-    private FontIcon caseRequirementIcon;
+    private final FontIcon caseRequirementIcon = requirementIcon();
 
-    private FontIcon complexityRequirementIcon;
+    private final FontIcon complexityRequirementIcon = requirementIcon();
 
-    private FontIcon noTrivialSequencesRequirementIcon;
-
-    private ToggleButton silentModeButton;
-
-    private Button helpButton;
+    private final FontIcon noTrivialSequencesRequirementIcon = requirementIcon();
 
     private Map<FontIcon, BooleanProperty> requirements;
+
 
     private Alert alert;
 
@@ -84,21 +66,7 @@ public class LoginView implements ParentAware {
 
     @PostConstruct
     public void init() {
-        this.parent = new VBox();
-        this.passwordField = passwordField();
-        this.passwordButton = passwordButton();
-        this.checksumLabel = checksumLabel();
-        this.lengthRequirementLabel = requirementLabel("Minimum 16 characters");
-        this.caseRequirementLabel = requirementLabel("Uppercase and lowercase letters");
-        this.complexityRequiremenetLabel = requirementLabel("Numbers and symbols");
-        this.noTrivialSequencesRequirementLabel = requirementLabel("No trivial sequences");
-        this.noTrivialSequencesRequirementLabel.setTooltip(ViewUtils.tooltip(Content.noTrivialSequencesTooltip()));
-        this.lengthRequirementIcon = requirementIcon();
-        this.caseRequirementIcon = requirementIcon();
-        this.complexityRequirementIcon = requirementIcon();
-        this.noTrivialSequencesRequirementIcon = requirementIcon();
-        this.silentModeButton = silentMode();
-        this.helpButton = helpButton();
+        this.noTrivialSequencesRequirementLabel.setTooltip(tooltip(Content.noTrivialSequencesTooltip()));
         requirements = Map.of(
                 lengthRequirementIcon, model.getLengthRequirementFulfilled(),
                 caseRequirementIcon, model.getCaseRequirementFulfilled(),
@@ -109,14 +77,13 @@ public class LoginView implements ParentAware {
     }
 
     private void initializeView() {
-        customizeRoot();
         parent.getChildren().addAll(
                 menuWithLogo(silentModeButton, helpButton),
-                passwordCaption(),
+                caption("Enter Master Password:"),
                 passwordInput(passwordField, passwordButton),
                 checksumInputGroup(checksumLabel),
-                requirementsSeparator(),
-                ViewUtils.caption("Master password requirements:"),
+                horizontalSeparator(),
+                caption("Master password requirements:"),
                 requirements()
         );
         observeChecksum();
@@ -125,22 +92,16 @@ public class LoginView implements ParentAware {
         listenGenerateButton();
         listenHelpButton();
         listenSilentModeButton();
-        registerSilentModeShortcut();
+        registerShortcuts();
     }
 
 
-    private void registerSilentModeShortcut() {
+    private void registerShortcuts() {
         parent.setOnKeyPressed(key -> {
             if (key.getCode() == KeyCode.S && key.isControlDown()) {
                 silentModeButton.fire();
             }
         });
-    }
-
-    private void customizeRoot() {
-        parent.setAlignment(Pos.TOP_CENTER);
-        parent.setSpacing(20);
-        parent.setPadding(new Insets(20));
     }
 
     public void update(boolean silentMode) {
@@ -171,10 +132,10 @@ public class LoginView implements ParentAware {
     private void updateRequirementState(FontIcon fontIcon, BooleanProperty requirementValue) {
         if (requirementValue.get()) {
             fontIcon.setIconCode(Material2RoundAL.CHECK_CIRCLE);
-            ViewUtils.changeStyle(fontIcon, Styles.SUCCESS);
+            changeStyle(fontIcon, Styles.SUCCESS);
         } else {
             fontIcon.setIconCode(Material2RoundAL.ERROR);
-            ViewUtils.changeStyle(fontIcon, Styles.WARNING);
+            changeStyle(fontIcon, Styles.WARNING);
         }
     }
 
@@ -204,6 +165,7 @@ public class LoginView implements ParentAware {
         });
     }
 
+
     private void showGeneratingMasterKeyAlert() {
         var icon = new FontIcon(Material2MZ.REFRESH);
         alert = new Alert(Alert.AlertType.INFORMATION);
@@ -213,7 +175,7 @@ public class LoginView implements ParentAware {
         alert.setContentText("Generating master key... It may take a while.");
         alert.setGraphic(icon);
         generatingAnimation = Animations.rotateIn(icon, Duration.seconds(2));
-        generatingAnimation.setCycleCount(100);
+        generatingAnimation.setCycleCount(Animation.INDEFINITE);
         generatingAnimation.playFromStart();
         alert.showAndWait().filter(buttonType -> buttonType == ButtonType.CANCEL)
                 .ifPresent(buttonType -> controller.onCancelButtonPressed());
@@ -228,16 +190,6 @@ public class LoginView implements ParentAware {
         Animations.flash(node).playFromStart();
     }
 
-    private void listenHelpButton() {
-        helpButton.setOnAction(e -> {
-            var alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Help");
-            alert.setHeaderText("How to use On-the-fly?");
-            alert.setContentText(Content.help());
-            alert.initOwner(parent.getScene().getWindow());
-            alert.show();
-        });
-    }
 
     private void listenSilentModeButton() {
         silentModeButton.setOnAction(e -> {
@@ -245,27 +197,13 @@ public class LoginView implements ParentAware {
                 checksumLabel.setText("****");
                 requirements.forEach(((icon, booleanProperty) -> {
                     icon.setIconCode(BoxiconsSolid.HIDE);
-                    ViewUtils.changeStyle(icon, Styles.ACCENT);
+                    changeStyle(icon, Styles.ACCENT);
                 }));
             } else {
                 checksumLabel.setText(model.getPasswordHashFragment().get());
                 requirements.forEach(this::updateRequirementState);
             }
         });
-    }
-
-    private ImageView logo() {
-        var image = new Image("logo-transparent-resized.png");
-        var imageView = new ImageView(image);
-        imageView.setPreserveRatio(true);
-        imageView.setFitWidth(400);
-        return imageView;
-    }
-
-    private Text passwordCaption() {
-        var passwordTitle = new Text("Enter Master Password:");
-        passwordTitle.getStyleClass().add(Styles.TITLE_2);
-        return passwordTitle;
     }
 
     private InputGroup passwordInput(PasswordField passwordField, Button passwordButton) {
@@ -289,38 +227,7 @@ public class LoginView implements ParentAware {
         return button;
     }
 
-    private Label checksumLabel() {
-        var label = new Label();
-        label.setMinWidth(70);
-        label.setAlignment(Pos.CENTER);
-        label.getStyleClass().addAll(Styles.TEXT_MUTED, Styles.TEXT_BOLD);
-        return label;
-    }
-
-    private InputGroup checksumInputGroup(Label checksumLabel) {
-        var captionLabel = new Label("Checksum");
-        captionLabel.getStyleClass().addAll(Styles.TEXT_CAPTION);
-
-        var icon = new FontIcon(Material2AL.INFO);
-
-        var tooltip = new Tooltip("Remember and validate\nthe checksum everytime.\n(see help for more)");
-
-        tooltip.setTextAlignment(TextAlignment.CENTER);
-        tooltip.setShowDelay(Duration.ZERO);
-        tooltip.setAnchorLocation(PopupWindow.AnchorLocation.WINDOW_TOP_RIGHT);
-        captionLabel.setTooltip(tooltip);
-        captionLabel.setGraphic(icon);
-        var inputGroup = new InputGroup(captionLabel, checksumLabel);
-        inputGroup.setAlignment(Pos.CENTER);
-        return inputGroup;
-    }
-
-    private Separator requirementsSeparator() {
-        return new Separator(Orientation.HORIZONTAL);
-    }
-
     private HBox requirements() {
-        var hbox = new HBox();
         var leftVbox = new VBox();
         leftVbox.getChildren().addAll(
                 requirement(lengthRequirementLabel, lengthRequirementIcon),
@@ -333,10 +240,7 @@ public class LoginView implements ParentAware {
         );
         leftVbox.setSpacing(20);
         rightVbox.setSpacing(20);
-        hbox.getChildren().addAll(leftVbox, rightVbox);
-        hbox.setSpacing(50);
-        hbox.setAlignment(Pos.CENTER);
-        return hbox;
+        return centeringHbox(leftVbox, rightVbox);
     }
 
     private HBox requirement(Label requirementLabel, FontIcon requirementIcon) {
@@ -359,35 +263,4 @@ public class LoginView implements ParentAware {
         return icon;
     }
 
-    private ToggleButton silentMode() {
-        var toggleButton = new ToggleButton(null, new FontIcon(BoxiconsSolid.HIDE));
-        toggleButton.setFocusTraversable(false);
-        toggleButton.getStyleClass().addAll(Styles.BUTTON_ICON);
-        toggleButton.setTooltip(ViewUtils.tooltip("Silent mode\nCTRL+S"));
-        return toggleButton;
-    }
-
-    private Button helpButton() {
-        var button = new Button(null, new FontIcon(Material2AL.HELP));
-        button.setFocusTraversable(false);
-        button.getStyleClass().addAll(Styles.BUTTON_ICON);
-        button.setTooltip(ViewUtils.tooltip("Help"));
-        return button;
-    }
-
-    private BorderPane menuWithLogo(ToggleButton silentMode, Button help) {
-        var hbox = new HBox(silentMode, help);
-        hbox.setSpacing(20);
-        var borderPane = new BorderPane();
-        var region = new Region();
-        region.prefWidthProperty().bind(hbox.widthProperty());
-        borderPane.leftProperty().set(region);
-        borderPane.centerProperty().set(logo());
-        borderPane.rightProperty().set(hbox);
-        return borderPane;
-    }
-
-    public boolean isSilentMode() {
-        return silentModeButton.isSelected();
-    }
 }
