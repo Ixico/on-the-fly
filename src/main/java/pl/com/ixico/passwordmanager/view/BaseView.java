@@ -68,6 +68,15 @@ public abstract class BaseView implements ParentAware {
         return inputGroup;
     }
 
+    public VBox centeringVbox(Node... children) {
+        var vbox = new VBox();
+        vbox.setAlignment(Pos.TOP_CENTER);
+        vbox.getChildren().addAll(children);
+        vbox.setPadding(new Insets(10, 0, 0, 0));
+        vbox.setSpacing(25);
+        return vbox;
+    }
+
     public static Text caption(String title) {
         var text = new Text(title);
         text.getStyleClass().add(Styles.TITLE_2);
@@ -86,12 +95,6 @@ public abstract class BaseView implements ParentAware {
         return new Separator(Orientation.HORIZONTAL);
     }
 
-
-    public static Button button() {
-        var button = new Button("Generate", new FontIcon(Material2AL.CONTENT_COPY));
-        button.setDefaultButton(true);
-        return button;
-    }
 
     public static InputGroup textFieldInput(TextField textField, Button passwordButton) {
         var passwordInputGroup = new InputGroup(textField, passwordButton);

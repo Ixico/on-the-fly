@@ -1,7 +1,6 @@
 package pl.com.ixico.passwordmanager.service;
 
 import javafx.application.Platform;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.context.ApplicationEventPublisher;

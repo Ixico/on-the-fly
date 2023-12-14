@@ -10,14 +10,12 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import lombok.RequiredArgsConstructor;
-import org.kordamp.ikonli.boxicons.BoxiconsSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2AL;
 import org.kordamp.ikonli.material2.Material2MZ;
 import org.springframework.stereotype.Component;
 import pl.com.ixico.passwordmanager.controller.ManagerController;
 import pl.com.ixico.passwordmanager.model.ManagerModel;
-import pl.com.ixico.passwordmanager.utils.ViewUtils;
 
 @Component
 @RequiredArgsConstructor
@@ -28,35 +26,28 @@ public class ManagerView extends BaseView {
 
     private final ManagerController controller;
 
-    private TextField domainField;
+    private final TextField domainField = domainTextField();
 
-    private Label sessionExpirationLabel = sessionExpirationLabel();
+    private final Label sessionExpirationLabel = sessionExpirationLabel();
 
-    private ProgressBar sessionExpirationBar;
+    private final ProgressBar sessionExpirationBar = sessionExpirationBar();
 
-    private Button generateButton;
+    private final Button generateButton = generateButton();
 
-    private Button refreshButton;
+    private final Button refreshButton = refreshButton();
 
-    private Button logoutButton;
+    private final Button logoutButton = logoutButton();
 
     @PostConstruct
     public void init() {
-        this.domainField = domainTextField();
-        this.sessionExpirationBar = session();
-        this.generateButton = ViewUtils.button();
-        this.refreshButton = refreshButton();
-        this.logoutButton = logoutButton();
-        this.silentModeButton = silentMode();
         initializeView();
-
     }
 
     public void update(boolean silentMode) {
         silentModeButton.setSelected(!silentMode);
         silentModeButton.fire();
     }
-// TODO: buttons and CenteringVBox
+
     private void initializeView() {
         parent.getChildren().addAll(
                 menuWithLogo(silentModeButton, helpButton),
@@ -64,13 +55,13 @@ public class ManagerView extends BaseView {
                 textFieldInput(domainField, generateButton),
                 horizontalSeparator(),
                 centeringHbox(
-                        ViewUtils.centeringVbox(
+                        centeringVbox(
                                 caption("Session expiration:"),
                                 new StackPane(sessionExpirationBar, sessionExpirationLabel),
                                 refreshButton
                         ),
                         new Separator(Orientation.VERTICAL),
-                        ViewUtils.centeringVbox(caption("Session details:"),
+                        centeringVbox(caption("Session details:"),
                                 checksumInputGroup(checksumLabel),
                                 logoutButton
                         )
@@ -85,6 +76,12 @@ public class ManagerView extends BaseView {
         registerShortcuts();
         listenSilentModeButton();
         listenHelpButton();
+    }
+
+    private Button generateButton() {
+        var button = new Button("Generate", new FontIcon(Material2AL.CONTENT_COPY));
+        button.setDefaultButton(true);
+        return button;
     }
 
     private void listenSilentModeButton() {
@@ -117,14 +114,6 @@ public class ManagerView extends BaseView {
         label.setAlignment(Pos.CENTER);
         label.getStyleClass().addAll(Styles.TEXT_BOLD);
         return label;
-    }
-
-    private ToggleButton silentMode() {
-        var toggleButton = new ToggleButton(null, new FontIcon(BoxiconsSolid.HIDE));
-        toggleButton.setFocusTraversable(false);
-        toggleButton.getStyleClass().addAll(Styles.BUTTON_ICON);
-        toggleButton.setTooltip(tooltip("Silent mode\nCTRL+S"));
-        return toggleButton;
     }
 
 
@@ -191,7 +180,7 @@ public class ManagerView extends BaseView {
         });
     }
 
-    private ProgressBar session() {
+    private ProgressBar sessionExpirationBar() {
         var progressBar = new ProgressBar(0.5);
         progressBar.getStyleClass().add(Styles.LARGE);
         progressBar.setPrefWidth(200);

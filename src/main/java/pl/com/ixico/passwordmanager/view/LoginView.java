@@ -11,7 +11,6 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import lombok.RequiredArgsConstructor;
 import org.kordamp.ikonli.boxicons.BoxiconsSolid;
@@ -22,7 +21,6 @@ import org.springframework.stereotype.Component;
 import pl.com.ixico.passwordmanager.controller.LoginController;
 import pl.com.ixico.passwordmanager.model.LoginModel;
 import pl.com.ixico.passwordmanager.utils.Content;
-import pl.com.ixico.passwordmanager.utils.ViewUtils;
 
 import java.util.Map;
 
@@ -66,7 +64,6 @@ public class LoginView extends BaseView {
 
     @PostConstruct
     public void init() {
-        this.noTrivialSequencesRequirementLabel.setTooltip(tooltip(Content.noTrivialSequencesTooltip()));
         requirements = Map.of(
                 lengthRequirementIcon, model.getLengthRequirementFulfilled(),
                 caseRequirementIcon, model.getCaseRequirementFulfilled(),
@@ -93,15 +90,7 @@ public class LoginView extends BaseView {
         listenHelpButton();
         listenSilentModeButton();
         registerShortcuts();
-    }
-
-
-    private void registerShortcuts() {
-        parent.setOnKeyPressed(key -> {
-            if (key.getCode() == KeyCode.S && key.isControlDown()) {
-                silentModeButton.fire();
-            }
-        });
+        noTrivialSequencesRequirementLabel.setTooltip(tooltip(Content.noTrivialSequencesTooltip()));
     }
 
     public void update(boolean silentMode) {
@@ -109,6 +98,19 @@ public class LoginView extends BaseView {
         silentModeButton.fire();
         passwordField.setText("");
         checksumLabel.setText("");
+    }
+
+    public void closeGeneratingMasterKeyAlert() {
+        generatingAnimation.stop();
+        alert.close();
+    }
+
+    private void registerShortcuts() {
+        parent.setOnKeyPressed(key -> {
+            if (key.getCode() == KeyCode.S && key.isControlDown()) {
+                silentModeButton.fire();
+            }
+        });
     }
 
     private void observeChecksum() {
@@ -181,10 +183,6 @@ public class LoginView extends BaseView {
                 .ifPresent(buttonType -> controller.onCancelButtonPressed());
     }
 
-    public void closeGeneratingMasterKeyAlert() {
-        generatingAnimation.stop();
-        alert.close();
-    }
 
     private void flash(Node node) {
         Animations.flash(node).playFromStart();
@@ -228,18 +226,10 @@ public class LoginView extends BaseView {
     }
 
     private HBox requirements() {
-        var leftVbox = new VBox();
-        leftVbox.getChildren().addAll(
-                requirement(lengthRequirementLabel, lengthRequirementIcon),
-                requirement(complexityRequiremenetLabel, complexityRequirementIcon)
-        );
-        var rightVbox = new VBox();
-        rightVbox.getChildren().addAll(
-                requirement(caseRequirementLabel, caseRequirementIcon),
-                requirement(noTrivialSequencesRequirementLabel, noTrivialSequencesRequirementIcon)
-        );
-        leftVbox.setSpacing(20);
-        rightVbox.setSpacing(20);
+        var leftVbox = centeringVbox(requirement(lengthRequirementLabel, lengthRequirementIcon),
+                requirement(complexityRequiremenetLabel, complexityRequirementIcon));
+        var rightVbox = centeringVbox(requirement(caseRequirementLabel, caseRequirementIcon),
+                requirement(noTrivialSequencesRequirementLabel, noTrivialSequencesRequirementIcon));
         return centeringHbox(leftVbox, rightVbox);
     }
 
