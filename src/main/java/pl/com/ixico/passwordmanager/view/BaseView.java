@@ -144,6 +144,7 @@ public abstract class BaseView implements ParentAware {
             alert.setTitle("Help");
             alert.setHeaderText("How to use On-the-fly?");
             alert.setContentText(Content.help());
+            alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
             alert.initOwner(parent.getScene().getWindow());
             alert.show();
         });
