@@ -190,12 +190,14 @@ public class ManagerView extends BaseView {
     private Button refreshButton() {
         var button = new Button("Refresh", new FontIcon(Material2MZ.REFRESH));
         button.setDefaultButton(false);
+        button.setTooltip(tooltip("CTRL+R"));
         return button;
     }
 
     private Button logoutButton() {
         var button = new Button("Logout", new FontIcon(Material2AL.LOG_OUT));
         button.setDefaultButton(false);
+        button.setTooltip(tooltip("CTRL+L"));
         return button;
     }
 
