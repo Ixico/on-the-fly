@@ -1,9 +1,6 @@
 package pl.com.ixico.passwordmanager.model;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
 
@@ -15,19 +12,13 @@ public class LoginModel {
 
     private final BooleanProperty lengthRequirementFulfilled;
 
-    private final BooleanProperty caseRequirementFulfilled;
-
-    private final BooleanProperty complexityRequirementFulfilled;
-
-    private final BooleanProperty noTrivialSequencesRequirementFulfilled;
+    private final FloatProperty passwordStrength;
 
 
     public LoginModel() {
         this.passwordHashFragment = new SimpleStringProperty();
         this.lengthRequirementFulfilled = new SimpleBooleanProperty(false);
-        this.caseRequirementFulfilled = new SimpleBooleanProperty(false);
-        this.complexityRequirementFulfilled = new SimpleBooleanProperty(false);
-        this.noTrivialSequencesRequirementFulfilled = new SimpleBooleanProperty(false);
+        this.passwordStrength = new SimpleFloatProperty(0);
     }
 
     public void setPasswordHashFragment(String value) {
@@ -38,25 +29,15 @@ public class LoginModel {
         lengthRequirementFulfilled.set(fulfilled);
     }
 
-    public void setCaseRequirementFulfilled(boolean fulfilled) {
-        caseRequirementFulfilled.set(fulfilled);
-    }
 
-    public void setComplexityRequirementFulfilled(boolean fulfilled) {
-        complexityRequirementFulfilled.set(fulfilled);
-    }
-
-    public void setNoTrivialSequencesRequirementFulfilled(boolean fulfilled) {
-        noTrivialSequencesRequirementFulfilled.set(fulfilled);
+    public void setPasswordStrength(Float passwordStrength) {
+        this.passwordStrength.set(passwordStrength);
     }
 
 
     public void clear() {
         passwordHashFragment.set("");
         lengthRequirementFulfilled.set(false);
-        caseRequirementFulfilled.set(false);
-        complexityRequirementFulfilled.set(false);
-        noTrivialSequencesRequirementFulfilled.set(false);
     }
 
 }

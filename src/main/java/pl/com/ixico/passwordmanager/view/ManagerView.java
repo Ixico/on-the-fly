@@ -28,9 +28,9 @@ public class ManagerView extends BaseView {
 
     private final TextField domainField = domainTextField();
 
-    private final Label sessionExpirationLabel = sessionExpirationLabel();
+    private final Label sessionExpirationLabel = progressBarLabel();
 
-    private final ProgressBar sessionExpirationBar = sessionExpirationBar();
+    private final ProgressBar sessionExpirationBar = progressBar();
 
     private final Button generateButton = generateButton();
 
@@ -108,14 +108,6 @@ public class ManagerView extends BaseView {
         return textField;
     }
 
-    public static Label sessionExpirationLabel() {
-        var label = new Label();
-        label.setMinWidth(70);
-        label.setAlignment(Pos.CENTER);
-        label.getStyleClass().addAll(Styles.TEXT_BOLD);
-        return label;
-    }
-
 
     private void observeSessionExpiration() {
         model.getSessionExpiration().addListener((observableValue, oldValue, newValue) ->
@@ -178,13 +170,6 @@ public class ManagerView extends BaseView {
             alert.showAndWait().filter(buttonType -> buttonType == ButtonType.OK)
                     .ifPresent(buttonType -> controller.onLogoutButtonPressed());
         });
-    }
-
-    private ProgressBar sessionExpirationBar() {
-        var progressBar = new ProgressBar(0.5);
-        progressBar.getStyleClass().add(Styles.LARGE);
-        progressBar.setPrefWidth(200);
-        return progressBar;
     }
 
     private Button refreshButton() {

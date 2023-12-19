@@ -1,12 +1,10 @@
 package pl.com.ixico.passwordmanager.controller;
 
 import lombok.RequiredArgsConstructor;
+import me.gosimple.nbvcxz.Nbvcxz;
 import org.springframework.stereotype.Component;
 import pl.com.ixico.passwordmanager.model.LoginModel;
 import pl.com.ixico.passwordmanager.service.PasswordService;
-import pl.com.ixico.passwordmanager.service.PasswordValidationService;
-
-import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
@@ -16,30 +14,26 @@ public class LoginController {
 
     private final PasswordService passwordService;
 
-    private final PasswordValidationService passwordValidationService;
-
     private Thread calculatingThread;
+
+    private final Nbvcxz checker = new Nbvcxz();
+
+    private static final Integer PASSWORD_MIN_LENGTH = 16;
 
 
     public void onPasswordChanged(String password) {
-        loginModel.setCaseRequirementFulfilled(passwordValidationService.caseRequirementFulfilled(password));
-        loginModel.setComplexityRequirementFulfilled(passwordValidationService.complexityRequirementFulfilled(password));
-        loginModel.setLengthRequirementFulfilled(passwordValidationService.lengthRequirementFulfilled(password));
-        loginModel.setNoTrivialSequencesRequirementFulfilled(passwordValidationService.noTrivialSequencesRequirementFulfilled(password));
-        if (areRequirementsFulfilled()) {
+        loginModel.setPasswordStrength(checker.estimate(password).getEntropy().floatValue());
+        var lengthRequirementFulfilled = password.length() > PASSWORD_MIN_LENGTH;
+        loginModel.setLengthRequirementFulfilled(lengthRequirementFulfilled);
+        if (lengthRequirementFulfilled) {
             loginModel.setPasswordHashFragment(passwordService.calculateChecksum(password));
         } else {
             loginModel.setPasswordHashFragment("");
         }
     }
 
-    public boolean areRequirementsFulfilled() {
-        return Stream.of(
-                loginModel.getCaseRequirementFulfilled().get(),
-                loginModel.getComplexityRequirementFulfilled().get(),
-                loginModel.getLengthRequirementFulfilled().get(),
-                loginModel.getNoTrivialSequencesRequirementFulfilled().get()
-        ).allMatch(requirement -> requirement);
+    public boolean isLengthRequirementFulfilled() {
+        return loginModel.getLengthRequirementFulfilled().get();
     }
 
     public void onPasswordSubmitted(String password) {

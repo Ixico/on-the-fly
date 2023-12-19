@@ -158,6 +158,21 @@ public abstract class BaseView implements ParentAware {
         return button;
     }
 
+    protected ProgressBar progressBar() {
+        var progressBar = new ProgressBar(0);
+        progressBar.getStyleClass().add(Styles.LARGE);
+        progressBar.setPrefWidth(200);
+        return progressBar;
+    }
+
+    protected Label progressBarLabel() {
+        var label = new Label();
+        label.setMinWidth(70);
+        label.setAlignment(Pos.CENTER);
+        label.getStyleClass().addAll(Styles.TEXT_BOLD);
+        return label;
+    }
+
 
     public boolean isSilentMode() {
         return silentModeButton.isSelected();

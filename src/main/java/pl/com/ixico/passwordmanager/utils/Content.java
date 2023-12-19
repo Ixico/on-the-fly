@@ -15,7 +15,4 @@ public class Content {
                 """;
     }
 
-    public static String noTrivialSequencesTooltip() {
-        return "Sequences like 'abcd', 'qwerty',\n'1qaz', 'aaaa', are forbidden";
-    }
 }

@@ -5,12 +5,13 @@ import atlantafx.base.theme.Styles;
 import atlantafx.base.util.Animations;
 import jakarta.annotation.PostConstruct;
 import javafx.animation.Animation;
-import javafx.beans.property.BooleanProperty;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import lombok.RequiredArgsConstructor;
 import org.kordamp.ikonli.boxicons.BoxiconsSolid;
@@ -20,9 +21,6 @@ import org.kordamp.ikonli.material2.Material2RoundAL;
 import org.springframework.stereotype.Component;
 import pl.com.ixico.passwordmanager.controller.LoginController;
 import pl.com.ixico.passwordmanager.model.LoginModel;
-import pl.com.ixico.passwordmanager.utils.Content;
-
-import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -38,23 +36,13 @@ public class LoginView extends BaseView {
     private final Button passwordButton = passwordButton();
 
 
-    private final Label lengthRequirementLabel = requirementLabel("Minimum 16 characters");
-
-    private final Label caseRequirementLabel = requirementLabel("Uppercase and lowercase letters");
-
-    private final Label complexityRequiremenetLabel = requirementLabel("Numbers and symbols");
-
-    private final Label noTrivialSequencesRequirementLabel = requirementLabel("No trivial sequences");
+    private final Label lengthRequirementLabel = requirementLabel();
 
     private final FontIcon lengthRequirementIcon = requirementIcon();
 
-    private final FontIcon caseRequirementIcon = requirementIcon();
+    private final ProgressBar passwordStrength = progressBar();
 
-    private final FontIcon complexityRequirementIcon = requirementIcon();
-
-    private final FontIcon noTrivialSequencesRequirementIcon = requirementIcon();
-
-    private Map<FontIcon, BooleanProperty> requirements;
+    private final Label passwordStrengthLabel = progressBarLabel();
 
 
     private Alert alert;
@@ -64,12 +52,6 @@ public class LoginView extends BaseView {
 
     @PostConstruct
     public void init() {
-        requirements = Map.of(
-                lengthRequirementIcon, model.getLengthRequirementFulfilled(),
-                caseRequirementIcon, model.getCaseRequirementFulfilled(),
-                complexityRequirementIcon, model.getComplexityRequirementFulfilled(),
-                noTrivialSequencesRequirementIcon, model.getNoTrivialSequencesRequirementFulfilled()
-        );
         initializeView();
     }
 
@@ -80,17 +62,25 @@ public class LoginView extends BaseView {
                 passwordInput(passwordField, passwordButton),
                 checksumInputGroup(checksumLabel),
                 horizontalSeparator(),
-                caption("Master password requirements:"),
-                requirements()
+                centeringHbox(
+                        centeringVbox(
+                                caption("Required length:"),
+                                requirement(lengthRequirementLabel, lengthRequirementIcon)
+                        ),
+                        new Separator(Orientation.VERTICAL),
+                        centeringVbox(caption("Password strength:"),
+                                new StackPane(passwordStrength, passwordStrengthLabel)
+                        )
+                )
         );
         observeChecksum();
-        observeRequirements();
+        observeLengthRequirement();
+        observePasswordStrength();
         listenPasswordInput();
         listenGenerateButton();
         listenHelpButton();
         listenSilentModeButton();
         registerShortcuts();
-        noTrivialSequencesRequirementLabel.setTooltip(tooltip(Content.noTrivialSequencesTooltip()));
     }
 
     public void update(boolean silentMode) {
@@ -98,6 +88,8 @@ public class LoginView extends BaseView {
         silentModeButton.fire();
         passwordField.setText("");
         checksumLabel.setText("");
+        passwordStrength.setProgress(0);
+        passwordStrengthLabel.setText("");
     }
 
     public void closeGeneratingMasterKeyAlert() {
@@ -120,24 +112,40 @@ public class LoginView extends BaseView {
         });
     }
 
-    private void observeRequirements() {
-        requirements.forEach(this::observeRequirement);
+    private void observePasswordStrength() {
+        model.getPasswordStrength().addListener((observableValue, oldValue, newValue) ->
+                updatePasswordStrength(newValue));
     }
 
-    private void observeRequirement(FontIcon fontIcon, BooleanProperty booleanProperty) {
-        booleanProperty.addListener((observableValue, fulfilledBefore, fulfilled) -> {
+    private void updatePasswordStrength(Number newValue) {
+        if (isSilentMode()) return;
+        var scaledEntropy = newValue.doubleValue() / 60;
+        if (scaledEntropy < 0.25) {
+            passwordStrengthLabel.setText("Very weak");
+        } else if (scaledEntropy < 0.5) {
+            passwordStrengthLabel.setText("Weak");
+        } else if (scaledEntropy < 0.75) {
+            passwordStrengthLabel.setText("Strong");
+        } else {
+            passwordStrengthLabel.setText("Very strong");
+        }
+        passwordStrength.setProgress(newValue.doubleValue() / 60);
+    }
+
+    private void observeLengthRequirement() {
+        model.getLengthRequirementFulfilled().addListener((observableValue, fulfilledBefore, fulfilled) -> {
             if (isSilentMode()) return;
-            updateRequirementState(fontIcon, booleanProperty);
+            updateLengthRequirement(fulfilled);
         });
     }
 
-    private void updateRequirementState(FontIcon fontIcon, BooleanProperty requirementValue) {
-        if (requirementValue.get()) {
-            fontIcon.setIconCode(Material2RoundAL.CHECK_CIRCLE);
-            changeStyle(fontIcon, Styles.SUCCESS);
+    private void updateLengthRequirement(boolean fulfilled) {
+        if (fulfilled) {
+            lengthRequirementIcon.setIconCode(Material2RoundAL.CHECK_CIRCLE);
+            changeStyle(lengthRequirementIcon, Styles.SUCCESS);
         } else {
-            fontIcon.setIconCode(Material2RoundAL.ERROR);
-            changeStyle(fontIcon, Styles.WARNING);
+            lengthRequirementIcon.setIconCode(Material2RoundAL.ERROR);
+            changeStyle(lengthRequirementIcon, Styles.WARNING);
         }
     }
 
@@ -151,16 +159,7 @@ public class LoginView extends BaseView {
             if (!model.getLengthRequirementFulfilled().get()) {
                 flash(lengthRequirementLabel);
             }
-            if (!model.getCaseRequirementFulfilled().get()) {
-                flash(caseRequirementLabel);
-            }
-            if (!model.getComplexityRequirementFulfilled().get()) {
-                flash(complexityRequiremenetLabel);
-            }
-            if (!model.getNoTrivialSequencesRequirementFulfilled().get()) {
-                flash(noTrivialSequencesRequirementLabel);
-            }
-            if (controller.areRequirementsFulfilled()) {
+            if (controller.isLengthRequirementFulfilled()) {
                 controller.onPasswordSubmitted(passwordField.getText());
                 showGeneratingMasterKeyAlert();
             }
@@ -193,13 +192,14 @@ public class LoginView extends BaseView {
         silentModeButton.setOnAction(e -> {
             if (silentModeButton.isSelected()) {
                 checksumLabel.setText("****");
-                requirements.forEach(((icon, booleanProperty) -> {
-                    icon.setIconCode(BoxiconsSolid.HIDE);
-                    changeStyle(icon, Styles.ACCENT);
-                }));
+                passwordStrengthLabel.setText("* * * *");
+                passwordStrength.setProgress(0);
+                lengthRequirementIcon.setIconCode(BoxiconsSolid.HIDE);
+                changeStyle(lengthRequirementIcon, Styles.ACCENT);
             } else {
                 checksumLabel.setText(model.getPasswordHashFragment().get());
-                requirements.forEach(this::updateRequirementState);
+                updateLengthRequirement(model.getLengthRequirementFulfilled().get());
+                updatePasswordStrength(model.getPasswordStrength().get());
             }
         });
     }
@@ -225,14 +225,6 @@ public class LoginView extends BaseView {
         return button;
     }
 
-    private HBox requirements() {
-        var leftVbox = centeringVbox(requirement(lengthRequirementLabel, lengthRequirementIcon),
-                requirement(complexityRequiremenetLabel, complexityRequirementIcon));
-        var rightVbox = centeringVbox(requirement(caseRequirementLabel, caseRequirementIcon),
-                requirement(noTrivialSequencesRequirementLabel, noTrivialSequencesRequirementIcon));
-        return centeringHbox(leftVbox, rightVbox);
-    }
-
     private HBox requirement(Label requirementLabel, FontIcon requirementIcon) {
         var hbox = new HBox();
         hbox.getChildren().addAll(requirementLabel, requirementIcon);
@@ -241,8 +233,8 @@ public class LoginView extends BaseView {
         return hbox;
     }
 
-    private Label requirementLabel(String text) {
-        var label = new Label(text);
+    private Label requirementLabel() {
+        var label = new Label("Minimum 16 characters");
         label.getStyleClass().add(Styles.TEXT_CAPTION);
         return label;
     }
@@ -252,5 +244,4 @@ public class LoginView extends BaseView {
         icon.getStyleClass().addAll(Styles.WARNING);
         return icon;
     }
-
 }
