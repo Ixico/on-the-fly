@@ -40,15 +40,6 @@ public class ManagerView extends BaseView {
 
     @PostConstruct
     public void init() {
-        initializeView();
-    }
-
-    public void update(boolean silentMode) {
-        silentModeButton.setSelected(!silentMode);
-        silentModeButton.fire();
-    }
-
-    private void initializeView() {
         parent.getChildren().addAll(
                 menuWithLogo(silentModeButton, helpButton),
                 caption("Enter application name:"),
@@ -76,6 +67,11 @@ public class ManagerView extends BaseView {
         registerShortcuts();
         listenSilentModeButton();
         listenHelpButton();
+    }
+
+    public void update(boolean silentMode) {
+        silentModeButton.setSelected(!silentMode);
+        silentModeButton.fire();
     }
 
     private Button generateButton() {

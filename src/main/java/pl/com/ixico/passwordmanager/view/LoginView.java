@@ -52,10 +52,6 @@ public class LoginView extends BaseView {
 
     @PostConstruct
     public void init() {
-        initializeView();
-    }
-
-    private void initializeView() {
         parent.getChildren().addAll(
                 menuWithLogo(silentModeButton, helpButton),
                 caption("Enter Master Password:"),
