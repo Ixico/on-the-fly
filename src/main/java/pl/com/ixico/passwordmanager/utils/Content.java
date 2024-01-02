@@ -12,7 +12,7 @@ public class Content {
                 STEP 2
                 4. Enter service name to generate password for authentication process.
                 5. Once you hit generate button, your password will be copied into your clipboard.
-                5. Make sure to refresh your session if you are still using the app (you will be logged out since it expires).
+                6. Make sure to refresh your session if you are still using the app (you will be logged out since it expires).
                 """;
     }
 
