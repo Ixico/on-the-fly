@@ -37,7 +37,7 @@ public class StageManager {
         managerModel.setPasswordChecksum(event.getPasswordChecksum());
         managerModel.setMasterKey(event.getMasterKey());
         managerController.initClock();
-        loginView.closeGeneratingMasterKeyAlert();
+        loginView.close();
 
         managerView.update(loginView.isSilentMode());
         loginModel.clear();

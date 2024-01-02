@@ -88,7 +88,8 @@ public class LoginView extends BaseView {
         passwordStrengthLabel.setText("");
     }
 
-    public void closeGeneratingMasterKeyAlert() {
+    public void close() {
+        passwordField.clear();
         generatingAnimation.stop();
         alert.close();
     }
