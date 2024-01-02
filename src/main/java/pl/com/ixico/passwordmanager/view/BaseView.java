@@ -36,7 +36,7 @@ public abstract class BaseView implements ParentAware {
     protected Button helpButton = helpButton();
 
 
-    public static Tooltip tooltip(String text) {
+    public Tooltip tooltip(String text) {
         var tooltip = new Tooltip(text);
         tooltip.setTextAlignment(TextAlignment.CENTER);
         tooltip.setShowDelay(Duration.ZERO);
@@ -44,7 +44,11 @@ public abstract class BaseView implements ParentAware {
         return tooltip;
     }
 
-    public static HBox centeringHbox(Node... children) {
+    public boolean isSilentMode() {
+        return silentModeButton.isSelected();
+    }
+
+    protected HBox centeringHbox(Node... children) {
         var hbox = new HBox();
         hbox.setAlignment(Pos.CENTER);
         hbox.getChildren().addAll(children);
@@ -52,23 +56,7 @@ public abstract class BaseView implements ParentAware {
         return hbox;
     }
 
-    public static void changeStyle(Node node, String style) {
-        node.getStyleClass().removeAll(Styles.ACCENT, Styles.SUCCESS, Styles.DANGER, Styles.WARNING);
-        node.getStyleClass().add(style);
-    }
-
-    protected static InputGroup checksumInputGroup(Label checksumLabel) {
-        var captionLabel = new Label("Checksum");
-        captionLabel.setMinWidth(100);
-        captionLabel.getStyleClass().addAll(Styles.TEXT_CAPTION);
-        captionLabel.setTooltip(tooltip("Checksum for password\nyou've provided"));
-        captionLabel.setGraphic(new FontIcon(Material2AL.INFO));
-        var inputGroup = new InputGroup(captionLabel, checksumLabel);
-        inputGroup.setAlignment(Pos.CENTER);
-        return inputGroup;
-    }
-
-    public VBox centeringVbox(Node... children) {
+    protected VBox centeringVbox(Node... children) {
         var vbox = new VBox();
         vbox.setAlignment(Pos.TOP_CENTER);
         vbox.getChildren().addAll(children);
@@ -77,65 +65,9 @@ public abstract class BaseView implements ParentAware {
         return vbox;
     }
 
-    public static Text caption(String title) {
-        var text = new Text(title);
-        text.getStyleClass().add(Styles.TITLE_2);
-        return text;
-    }
-
-    public static Label checksumLabel() {
-        var label = new Label();
-        label.setMinWidth(70);
-        label.setAlignment(Pos.CENTER);
-        label.getStyleClass().addAll(Styles.TEXT_MUTED, Styles.TEXT_BOLD);
-        return label;
-    }
-
-    public static Separator horizontalSeparator() {
-        return new Separator(Orientation.HORIZONTAL);
-    }
-
-
-    public static InputGroup textFieldInput(TextField textField, Button passwordButton) {
-        var passwordInputGroup = new InputGroup(textField, passwordButton);
-        passwordInputGroup.setAlignment(Pos.CENTER);
-        return passwordInputGroup;
-    }
-
-    public static BorderPane menuWithLogo(ToggleButton silentMode, Button help) {
-        var hbox = new HBox(silentMode, help);
-        hbox.setSpacing(20);
-        var borderPane = new BorderPane();
-        var region = new Region();
-        region.prefWidthProperty().bind(hbox.widthProperty());
-        borderPane.leftProperty().set(region);
-        borderPane.centerProperty().set(logo());
-        borderPane.rightProperty().set(hbox);
-        return borderPane;
-    }
-
-    public static ImageView logo() {
-        var image = new Image("logo.png");
-        var imageView = new ImageView(image);
-        imageView.setPreserveRatio(true);
-        imageView.setFitWidth(400);
-        return imageView;
-    }
-
-    private VBox parent() {
-        var parent = new VBox();
-        parent.setAlignment(Pos.TOP_CENTER);
-        parent.setSpacing(20);
-        parent.setPadding(new Insets(20));
-        return parent;
-    }
-
-    private ToggleButton silentModeButton() {
-        var toggleButton = new ToggleButton(null, new FontIcon(BoxiconsSolid.HIDE));
-        toggleButton.setFocusTraversable(false);
-        toggleButton.getStyleClass().addAll(Styles.BUTTON_ICON);
-        toggleButton.setTooltip(tooltip("Silent mode\nCTRL+S"));
-        return toggleButton;
+    protected void changeStyle(Node node, String style) {
+        node.getStyleClass().removeAll(Styles.ACCENT, Styles.SUCCESS, Styles.DANGER, Styles.WARNING);
+        node.getStyleClass().add(style);
     }
 
     protected void listenHelpButton() {
@@ -150,13 +82,49 @@ public abstract class BaseView implements ParentAware {
         });
     }
 
-    private Button helpButton() {
-        var button = new Button(null, new FontIcon(Material2AL.HELP));
-        button.setFocusTraversable(false);
-        button.getStyleClass().addAll(Styles.BUTTON_ICON);
-        button.setTooltip(tooltip("Help"));
-        return button;
+    protected InputGroup checksumInputGroup(Label checksumLabel) {
+        var captionLabel = new Label("Checksum");
+        captionLabel.setMinWidth(100);
+        captionLabel.getStyleClass().addAll(Styles.TEXT_CAPTION);
+        captionLabel.setTooltip(tooltip("Checksum for password\nyou've provided"));
+        captionLabel.setGraphic(new FontIcon(Material2AL.INFO));
+        var inputGroup = new InputGroup(captionLabel, checksumLabel);
+        inputGroup.setAlignment(Pos.CENTER);
+        return inputGroup;
     }
+
+
+    protected Text caption(String title) {
+        var text = new Text(title);
+        text.getStyleClass().add(Styles.TITLE_2);
+        return text;
+    }
+
+    protected Label checksumLabel() {
+        var label = new Label();
+        label.setMinWidth(70);
+        label.setAlignment(Pos.CENTER);
+        label.getStyleClass().addAll(Styles.TEXT_MUTED, Styles.TEXT_BOLD);
+        return label;
+    }
+
+    protected Separator horizontalSeparator() {
+        return new Separator(Orientation.HORIZONTAL);
+    }
+
+
+    protected BorderPane menuWithLogo(ToggleButton silentMode, Button help) {
+        var hbox = new HBox(silentMode, help);
+        hbox.setSpacing(20);
+        var borderPane = new BorderPane();
+        var region = new Region();
+        region.prefWidthProperty().bind(hbox.widthProperty());
+        borderPane.leftProperty().set(region);
+        borderPane.centerProperty().set(logo());
+        borderPane.rightProperty().set(hbox);
+        return borderPane;
+    }
+
 
     protected ProgressBar progressBar() {
         var progressBar = new ProgressBar(0);
@@ -173,9 +141,37 @@ public abstract class BaseView implements ParentAware {
         return label;
     }
 
+    private VBox parent() {
+        var parent = new VBox();
+        parent.setAlignment(Pos.TOP_CENTER);
+        parent.setSpacing(20);
+        parent.setPadding(new Insets(20));
+        return parent;
+    }
 
-    public boolean isSilentMode() {
-        return silentModeButton.isSelected();
+    private ImageView logo() {
+        var image = new Image("logo.png");
+        var imageView = new ImageView(image);
+        imageView.setPreserveRatio(true);
+        imageView.setFitWidth(400);
+        return imageView;
+    }
+
+    private ToggleButton silentModeButton() {
+        var toggleButton = new ToggleButton(null, new FontIcon(BoxiconsSolid.HIDE));
+        toggleButton.setFocusTraversable(false);
+        toggleButton.getStyleClass().addAll(Styles.BUTTON_ICON);
+        toggleButton.setTooltip(tooltip("Silent mode\nCTRL+S"));
+        return toggleButton;
+    }
+
+
+    private Button helpButton() {
+        var button = new Button(null, new FontIcon(Material2AL.HELP));
+        button.setFocusTraversable(false);
+        button.getStyleClass().addAll(Styles.BUTTON_ICON);
+        button.setTooltip(tooltip("Help"));
+        return button;
     }
 
 }

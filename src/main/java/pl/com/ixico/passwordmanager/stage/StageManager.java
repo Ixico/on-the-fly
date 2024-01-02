@@ -28,6 +28,7 @@ public class StageManager {
     public void onApplicationEvent(DisplayLoginViewEvent ignore) {
 
         loginView.update(managerView.isSilentMode());
+        managerView.close();
         managerModel.clear();
         StageContext.changeView(loginView);
     }

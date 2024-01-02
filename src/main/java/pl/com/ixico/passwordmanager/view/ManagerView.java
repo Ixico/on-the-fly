@@ -1,5 +1,6 @@
 package pl.com.ixico.passwordmanager.view;
 
+import atlantafx.base.layout.InputGroup;
 import atlantafx.base.theme.Styles;
 import atlantafx.base.util.Animations;
 import jakarta.annotation.PostConstruct;
@@ -69,6 +70,11 @@ public class ManagerView extends BaseView {
         listenHelpButton();
     }
 
+    public void close() {
+        domainField.clear();
+        generateButton.getStyleClass().remove(Styles.SUCCESS);
+        generateButton.setText("Generate");
+    }
     public void update(boolean silentMode) {
         silentModeButton.setSelected(!silentMode);
         silentModeButton.fire();
@@ -90,7 +96,7 @@ public class ManagerView extends BaseView {
         });
     }
 
-    public static TextField domainTextField() {
+    public TextField domainTextField() {
         var textField = new TextField() {
             @Override
             public void replaceText(int start, int end, String text) {
@@ -102,6 +108,12 @@ public class ManagerView extends BaseView {
         textField.setAlignment(Pos.CENTER);
         textField.setPrefWidth(300);
         return textField;
+    }
+
+    private InputGroup textFieldInput(TextField textField, Button passwordButton) {
+        var passwordInputGroup = new InputGroup(textField, passwordButton);
+        passwordInputGroup.setAlignment(Pos.CENTER);
+        return passwordInputGroup;
     }
 
 
@@ -127,7 +139,6 @@ public class ManagerView extends BaseView {
         domainField.setOnKeyTyped(e -> {
             // on enter pressed do nothing
             if (e.getCharacter().equals("\r")) {
-                System.out.println("hi");
                 return;
             }
             generateButton.getStyleClass().remove(Styles.SUCCESS);
