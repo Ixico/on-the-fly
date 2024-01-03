@@ -11,7 +11,7 @@ public class Content {
                 4. Make sure to use silent mode (right top corner) when you are in a public place.
                                 
                 STEP 2
-                5. Enter service name to generate password for authentication process.
+                5. Enter service name (e.g. FACEBOOK, GMAIL etc.) to generate password for authentication process.
                 6. Once you hit generate button, your password will be copied into your clipboard.
                 7. Make sure to refresh your session if you are still using the app (you will be logged out since it expires).
                 """;
