@@ -1,6 +1,7 @@
 package pl.com.ixico.passwordmanager.controller;
 
 import javafx.animation.AnimationTimer;
+import javafx.application.Platform;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,8 @@ import pl.com.ixico.passwordmanager.service.PasswordService;
 import pl.com.ixico.passwordmanager.stage.StageManager;
 
 import java.time.Instant;
+import java.util.Timer;
+import java.util.TimerTask;
 
 @Controller
 @RequiredArgsConstructor
@@ -25,6 +28,8 @@ public class ManagerController {
     private final PasswordService passwordService;
 
     private AnimationTimer sessionTimer;
+
+    private Timer timer;
 
     private static final Integer SESSION_LENGTH_SECONDS = 300;
 
@@ -61,8 +66,18 @@ public class ManagerController {
     }
 
     public void onGeneratePressed(String domain) {
+        if (timer != null) {
+            timer.cancel();
+        }
         var content = new ClipboardContent();
         content.putString(passwordService.calculatePassword(managerModel.getMasterKey(), domain));
         Clipboard.getSystemClipboard().setContent(content);
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Platform.runLater(() -> Clipboard.getSystemClipboard().setContent(null));
+            }
+        }, 10000);
     }
 }

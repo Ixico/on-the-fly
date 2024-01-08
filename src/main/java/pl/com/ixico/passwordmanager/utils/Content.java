@@ -12,7 +12,7 @@ public class Content {
                                 
                 STEP 2
                 5. Enter service name (e.g. FACEBOOK, GMAIL etc.) to generate password for authentication process.
-                6. Once you hit generate button, your password will be copied into your clipboard.
+                6. Once you hit generate button, your password will be copied into your clipboard (it will be wiped out after 10s).
                 7. Make sure to refresh your session if you are still using the app (you will be logged out since it expires).
                 """;
     }
